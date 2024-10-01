@@ -1,0 +1,30 @@
+---
+title: "p8105_hw2_SZ3319"
+author: "Shiyu Zhang"
+date: "2024-09-30"
+output: github_document
+
+
+---
+
+```{r setup, echo = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+## Problem 1
+
+### 1.1 Import and clean the dataset
+
+```{r}
+transit_df = 
+  read_csv("hw2data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv", na = c("NA", "", ".")) |> 
+  janitor::clean_names()
+
+tail(transit_df, 10)
+```
+
+### 1.2 
+
+
+
+
