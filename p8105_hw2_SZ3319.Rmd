@@ -9,6 +9,7 @@ output: github_document
 
 ```{r setup, echo = FALSE, message = FALSE}
 library(tidyverse)
+library(readxl)
 ```
 
 ## Problem 1
@@ -102,9 +103,32 @@ propotion_no_vending <-
 propotion_no_vending
 ```
 
+### 1.4 Reform the data.
+
+```{r}
+
+```
 
 
+## Problem 2
+
+### 2.1 
+
+### 1.1 Import the dataset and clean names
+
+```{r}
+wheel_df = 
+  read_excel("hw2data/202309 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1) |> 
+  janitor::clean_names()
+
+head(wheel_df, 10)
 
 
-
+wheel_clean <- wheel_df |> 
+  select(dumpster:homes_powered) |> 
+  drop_na(dumpster) |> #omit rows that do not include dumpster-specific data
+  mutate(
+    sports_balls = as.integer(round(sports_balls))
+  )#round the number of sports balls to the nearest integer and converts the result to an integer variable (using as.integer)
+```
 
