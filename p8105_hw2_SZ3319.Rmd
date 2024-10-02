@@ -123,7 +123,8 @@ mr_df =
 head(mr_df, 10)
 
 
-mr_clean <- mr_df |> 
+mr_clean =
+  mr_df |> 
   select(dumpster:homes_powered) |> 
   drop_na(dumpster) |> #omit rows that do not include dumpster-specific data
   mutate(
@@ -144,7 +145,8 @@ professor_df =
 head(professor_df, 10)
 
 
-professor_clean <- professor_df |> 
+professor_clean =
+  professor_df |> 
   select(dumpster:homes_powered) |> 
   drop_na(dumpster, month) |> #omit rows that do not include dumpster-specific data
   mutate(trash_wheel = "Professor")
@@ -165,7 +167,8 @@ gwynnda_df =
 head(gwynnda_df, 10)
 
 
-gwynnda_clean <- gwynnda_df |> 
+gwynnda_clean =
+  gwynnda_df |> 
   select(dumpster:homes_powered) |> 
   drop_na(dumpster) |> 
   mutate(trash_wheel = "Gwynnda")
@@ -180,11 +183,33 @@ tail(gwynnda_clean, 10)
 bind_data = 
   bind_rows(mr_clean, professor_clean, gwynnda_clean) |>
   janitor::clean_names() |>
-  #mutate(race = str_to_lower(race)) |> 
   select(trash_wheel, everything()) 
+
+head(bind_data, 10)
+```
+Total description
+
+```{r}
+total_weight_professor =
+  professor_clean |> 
+  summarise(total_weight = sum(weight_tons, na.rm = TRUE)) |> 
+  pull(total_weight)
+
+total_weight_professor
 ```
 
-### 2.5 
+```{r}
+total_cigarette_butts_gwynnda =
+  gwynnda_clean |> 
+  filter(year == 2022 & month == "June") |> 
+  summarise(
+    total_cigarette_butts = sum(cigarette_butts, na.rm = TRUE)
+  ) |> 
+  pull(total_cigarette_butts)
+
+total_cigarette_butts_gwynnda
+```
+
 
 
 
