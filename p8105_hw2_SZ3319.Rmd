@@ -118,7 +118,7 @@ propotion_no_vending
 
 ```{r}
 wheel_df = 
-  read_excel("hw2data/202309 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1) |> 
+  read_excel("hw2data/202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1) |> 
   janitor::clean_names()
 
 head(wheel_df, 10)
