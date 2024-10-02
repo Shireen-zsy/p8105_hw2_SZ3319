@@ -114,21 +114,65 @@ propotion_no_vending
 
 ### 2.1 
 
-### 1.1 Import the dataset and clean names
+### 1.1 Import the `Mr. Trash Wheel` sheet and clean names
 
 ```{r}
-wheel_df = 
+mr_df = 
   read_excel("hw2data/202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1) |> 
   janitor::clean_names()
 
-head(wheel_df, 10)
+head(mr_df, 10)
 
 
-wheel_clean <- wheel_df |> 
+mr_clean <- mr_df |> 
   select(dumpster:homes_powered) |> 
   drop_na(dumpster) |> #omit rows that do not include dumpster-specific data
   mutate(
-    sports_balls = as.integer(round(sports_balls))
+    sports_balls = as.integer(round(sports_balls)),
+    year = as.numeric(year)
   )#round the number of sports balls to the nearest integer and converts the result to an integer variable (using as.integer)
+
+tail(mr_clean, 10)
 ```
+### 1.2 Import the `Professor Trash Wheel` sheet and clean names
+
+```{r}
+professor_df = 
+  read_excel("hw2data/202409 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1) |> 
+  janitor::clean_names()
+
+head(professor_df, 10)
+
+
+professor_clean <- professor_df |> 
+  select(dumpster:homes_powered) |> 
+  drop_na(dumpster, month) #omit rows that do not include dumpster-specific data
+
+
+tail(professor_clean, 10)
+```
+
+
+
+### 1.3 Import the `Gwynnda Trash Wheel` sheet and clean names
+
+```{r}
+gwynnda_df = 
+  read_excel("hw2data/202409 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", skip = 1) |> 
+  janitor::clean_names()
+
+head(gwynnda_df, 10)
+
+
+gwynnda_clean <- gwynnda_df |> 
+  select(dumpster:homes_powered) |> 
+  drop_na(dumpster)
+
+tail(gwynnda_clean, 10)
+```
+
+
+
+
+
 
