@@ -7,16 +7,18 @@ output: github_document
 
 ---
 
-```{r setup, echo = FALSE, message = FALSE}
+```{r setup, include = FALSE}
 library(tidyverse)
 library(readxl)
+library(haven)
+library(tidyr)
 ```
 
 ## Problem 1
 
 ### 1.1 Import the dataset and clean names
 
-```{r}
+```{r, message = FALSE}
 transit_df = 
   read_csv("hw2data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv", na = c("NA", "", ".")) |> 
   janitor::clean_names()
@@ -28,7 +30,7 @@ tail(transit_df, 10)
 
 Select columns and clean the data; convert `entry` to logical.
 
-```{r}
+```{r, message = FALSE}
 transit_select <- transit_df |> 
   select(
     line, 
@@ -46,13 +48,15 @@ transit_select <- transit_df |>
   
 ```
 
-Description: 
+Description:
+
+
 
 ### 1.3 Analysis the data
 
 #### 1.3.1 Calculate the distinct station.
 
-```{r}
+```{r, message = FALSE}
 distinct_stations <- transit_select |> 
   distinct(line, station_name) |> 
   nrow()
@@ -72,36 +76,36 @@ ADA_compliant_stations <-
 
 ADA_compliant_stations
 ```
-**84** stations are ADA compliant.
+
+There are **84** ADA compliant stations.
 
 #### 1.3.3 Propotion of station
 
 Calculate the total number of stations without vending.
 
-```{r}
+```{r, message = FALSE}
 no_vending <- transit_select |> 
   filter(vending == "NO") |>
-  distinct(line, station_name) |> 
   nrow()
 ```
  
 Calculate how many of them allow entry.
 
-```{r}
+```{r, message = FALSE}
 allow_entry_no_vending <- transit_select |> 
   filter(vending == "NO", entry == TRUE) |>
-  distinct(line, station_name) |> 
   nrow()
 ```
 
-Calculate the propotion.
+Calculate the proportion.
 
 ```{r}
-propotion_no_vending <-
+proportion_no_vending <-
   allow_entry_no_vending / no_vending
 
-propotion_no_vending
+proportion_no_vending
 ```
+The proportion of station entrances without vending allow entrance is **0.3770492**.
 
 ### 1.4 Reform the data.
 
@@ -115,7 +119,7 @@ propotion_no_vending
 
 ### 2.1 Import the `Mr. Trash Wheel` sheet and clean names
 
-```{r}
+```{r, message = FALSE}
 mr_df = 
   read_excel("hw2data/202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1) |> 
   janitor::clean_names()
@@ -135,6 +139,8 @@ mr_clean =
 
 tail(mr_clean, 10)
 ```
+
+
 ### 2.2 Import the `Professor Trash Wheel` sheet and clean names
 
 ```{r}
@@ -154,7 +160,6 @@ professor_clean =
 
 tail(professor_clean, 10)
 ```
-
 
 
 ### 2.3 Import the `Gwynnda Trash Wheel` sheet and clean names
@@ -187,11 +192,12 @@ bind_data =
 
 head(bind_data, 10)
 ```
-Total description
+### 2.5 Total description
 
 ```{r}
 total_weight_professor =
-  professor_clean |> 
+  bind_data |> 
+  filter(trash_wheel == "Professor") |> 
   summarise(total_weight = sum(weight_tons, na.rm = TRUE)) |> 
   pull(total_weight)
 
@@ -200,8 +206,8 @@ total_weight_professor
 
 ```{r}
 total_cigarette_butts_gwynnda =
-  gwynnda_clean |> 
-  filter(year == 2022 & month == "June") |> 
+  bind_data |> 
+  filter(trash_wheel == "Gwynnda" & year == 2022 & month == "June") |> 
   summarise(
     total_cigarette_butts = sum(cigarette_butts, na.rm = TRUE)
   ) |> 
@@ -211,5 +217,99 @@ total_cigarette_butts_gwynnda
 ```
 
 
+
+## Problem 3
+
+### 3.1 Import data and clean names
+
+Import the data and clean names.
+
+```{r}
+baker_df = 
+  read_csv("hw2data/gbb_datasets/bakers.csv") |> 
+  janitor::clean_names()
+
+bake_df =
+  read_csv("hw2data/gbb_datasets/bakes.csv") |> 
+  janitor::clean_names()
+
+result_df = 
+  read_csv("hw2data/gbb_datasets/results.csv", skip = 2) |> 
+  janitor::clean_names()
+
+viewer_df =
+  read_csv("hw2data/gbb_datasets/viewers.csv") |> 
+  janitor::clean_names()
+
+```
+
+**bakers**: Separate the bakers' name in `bakers` dataset.
+
+```{r}
+baker_clean = 
+  baker_df |> 
+  separate("baker_name", into = c("baker", "last_name"), sep = " ") |> 
+  distinct() 
+```
+
+**bakes**: Exchange `Jo` to `"Jo"`.
+
+```{r, message = FALSE}
+bake_clean = 
+  bake_df |> 
+  distinct() |> 
+  mutate(baker = ifelse(baker ==  '"Jo"', "Jo", baker))
+```
+
+### 3.2 Set up a dataset combined with data from `bakers.csv`, `bakes.csv`, `results.csv`.
+
+Check if all bakers are there in `bake_clean`, `result_df` and `baker_clean`.
+
+```{r, message = FALSE}
+ms1_data = anti_join(result_df, baker_clean, by = "baker")
+
+ms1_data
+```
+Joanne is shown in `result`, but not in `bakers`.
+
+```{r, message = FALSE}
+ms2_data = anti_join(
+  bake_clean, baker_clean,
+  by = c("baker"))
+
+ms2_data
+```
+All bakers in `bake` are shown in `baker`.
+
+Combine the datasets.
+```{r, message = FALSE}
+combined_df = 
+  baker_clean |> 
+  left_join(bake_clean, 
+            by = c("baker", "series")) |> 
+  left_join(result_df, 
+            by = c("baker", "series", "episode")) |> 
+  select(-(last_name)) |> 
+  arrange(series, episode, technical) |> 
+  select(series, episode, baker, everything())
+  
+```
+
+
+
+### 3.3 Export the `combined_df`.
+
+```{r export_data}
+write_csv(combined_df,
+          "hw2data/gbb_datasets/combined_df.csv")
+```
+
+The final `combined_df` dataset has **573** observations and **10** variables. 
+
+### 3.4 Table for readers
+
+```{r}
+
+```
 
 
